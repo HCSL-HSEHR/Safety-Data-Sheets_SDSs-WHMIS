@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety Data Sheets (SDS)</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 16px;
+}
+input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  margin: 6px 0;
+}
+a {
+  text-decoration: none;
+  color: #0066cc;
+}
+a:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+
+<h2>Safety Data Sheets (SDS)</h2>
+<input type="text" id="search" placeholder="Search by product name..." onkeyup="filterList()">
+<ul id="fileList"></ul>
+
+<script>
+fetch('https://api.github.com/repos/HCSL-HSHER/Safety-Data-Sheets_SDS-WHMIS/contents')
+  .then(response => response.json())
+  .then(data => {
+    const list = document.getElementById('fileList');
+    data.filter(item => item.name.toLowerCase().endsWith('.pdf'))
+        .forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<a href="${item.download_url}" target="_blank    list.appendChild(li);
+        });
+  });
+
+function filterList() {
+  const filter = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('#fileList li').forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>
