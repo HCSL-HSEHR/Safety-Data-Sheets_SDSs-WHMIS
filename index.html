@@ -4,10 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Safety Data Sheets (SDS)</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
   margin: 16px;
+}
+h2 {
+  margin-bottom: 8px;
 }
 input {
   width: 100%;
@@ -29,30 +33,74 @@ a {
 a:hover {
   text-decoration: underline;
 }
+.breadcrumb {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.folder {
+  font-weight: bold;
+}
 </style>
 </head>
+
 <body>
 
 <h2>Safety Data Sheets (SDS)</h2>
-<input type="text" id="search" placeholder="Search by product name..." onkeyup="filterList()">
+
+<div class="breadcrumb" id="breadcrumb"></div>
+
+<input type="text" id="search" placeholder="Search by file or folder name..." onkeyup="filterList()">
+
 <ul id="fileList"></ul>
 
 <script>
-fetch('https://api.github.com/repos/HCSL-HSHER/Safety-Data-Sheets_SDS-WHMIS/contents')
-  .then(response => response.json())
-  .then(data => {
-    const list = document.getElementById('fileList');
-    data.filter(item => item.name.toLowerCase().endsWith('.pdf'))
-        .forEach(item => {
-          const li = document.createElement('li');
-          li.innerHTML = `<a href="${item.download_url}" target="_blank    list.appendChild(li);
-        });
-  });
+const owner = "HCSL-HSHER";
+const repo = "Safety-Data-Sheets_SDS-WHMIS";
+
+const params = new URLSearchParams(window.location.search);
+const path = params.get("path") || "";
+
+const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+fetch(apiUrl)
+  .then(res => res.json())
+  .then(data => renderList(data));
+
+function renderList(items) {
+  const list = document.getElementById("fileList");
+  const breadcrumb = document.getElementById("breadcrumb");
+
+  breadcrumb.innerHTML = path
+    ? `<a href="?/ ${path}`
+    : "Home";
+
+  list.innerHTML = "";
+
+  // Folders first
+  items
+    .filter(item => item.type === "dir")
+    .forEach(item => {
+      const li = document.createElement("li");
+      li.className = "folder";
+      li.innerHTML = `📁 ?path=${item.path}${item.name}</a>`;
+      list.appendChild(li);
+    });
+
+  // Then PDFs
+  items
+    .filter(item => item.type === "file" && item.name.toLowerCase().endsWith(".pdf"))
+    .forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `📄 <a href="${item.download_url}" target="_blanklist.appendChild(li);
+    });
+}
 
 function filterList() {
-  const filter = document.getElementById('search').value.toLowerCase();
-  document.querySelectorAll('#fileList li').forEach(item => {
-    item.style.display = item.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  const filter = document.getElementById("search").value.toLowerCase();
+  document.querySelectorAll("#fileList li").forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(filter)
+      ? ""
+      : "none";
   });
 }
 </script>
