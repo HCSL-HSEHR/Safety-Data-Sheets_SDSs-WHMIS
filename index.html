@@ -1,3 +1,7 @@
+---
+layout: none
+---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,9 +13,6 @@
 body {
   font-family: Arial, sans-serif;
   margin: 16px;
-}
-h2 {
-  margin-bottom: 8px;
 }
 input {
   width: 100%;
@@ -33,68 +34,31 @@ a {
 a:hover {
   text-decoration: underline;
 }
-.breadcrumb {
-  font-size: 14px;
-  margin-bottom: 10px;
-}
 .folder {
   font-weight: bold;
 }
 </style>
 </head>
-
 <body>
 
 <h2>Safety Data Sheets (SDS)</h2>
 
-<div class="breadcrumb" id="breadcrumb"></div>
+<input type="text" id="search" placeholder="Search by file or folder name…" onkeyup="filterList()">
 
-<input type="text" id="search" placeholder="Search by file or folder name..." onkeyup="filterList()">
-
-<ul id="fileList"></ul>
+<ul id="fileList">
+{% assign files = site.static_files | sort: "path" %}
+{% for file in files %}
+  {% unless file.path contains "/.git" %}
+    <li>
+      📄 <a href="{{ site.baseurl }}{{ file.path }}" target="_blank">
+        {{ file.name }}
+      </a>
+    </li>
+  {% endunless %}
+{% endfor %}
+</ul>
 
 <script>
-const owner = "HCSL-HSHER";
-const repo = "Safety-Data-Sheets_SDS-WHMIS";
-
-const params = new URLSearchParams(window.location.search);
-const path = params.get("path") || "";
-
-const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-
-fetch(apiUrl)
-  .then(res => res.json())
-  .then(data => renderList(data));
-
-function renderList(items) {
-  const list = document.getElementById("fileList");
-  const breadcrumb = document.getElementById("breadcrumb");
-
-  breadcrumb.innerHTML = path
-    ? `<a href="?/ ${path}`
-    : "Home";
-
-  list.innerHTML = "";
-
-  // Folders first
-  items
-    .filter(item => item.type === "dir")
-    .forEach(item => {
-      const li = document.createElement("li");
-      li.className = "folder";
-      li.innerHTML = `📁 ?path=${item.path}${item.name}</a>`;
-      list.appendChild(li);
-    });
-
-  // Then PDFs
-  items
-    .filter(item => item.type === "file" && item.name.toLowerCase().endsWith(".pdf"))
-    .forEach(item => {
-      const li = document.createElement("li");
-      li.innerHTML = `📄 <a href="${item.download_url}" target="_blanklist.appendChild(li);
-    });
-}
-
 function filterList() {
   const filter = document.getElementById("search").value.toLowerCase();
   document.querySelectorAll("#fileList li").forEach(item => {
